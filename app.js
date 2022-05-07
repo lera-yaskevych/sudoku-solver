@@ -1,7 +1,13 @@
+const inquirer = require('inquirer');
 const { convertOutput, getOptions } = require('./utils');
 const { easy, medium, hard } = require('./challenges');
 
-const result = [...hard];
+let result;
+const levels = {
+  'easy': easy,
+  'medium': medium,
+  'hard': hard,
+};
 
 const solve = (sudoku) => {
   for (let i = 0; i < sudoku.length; i++) {
@@ -24,7 +30,27 @@ const solve = (sudoku) => {
   return convertOutput(sudoku);
 };
 
-const resolvedSudoku = solve(result);
+inquirer
+  .prompt([{
+    name: 'level',
+    message: 'Select difficulty level',
+    choices: ['easy', 'medium', 'hard'],
+    type: 'list',
+  }])
+  .then((answers) => {
+    result = [...levels[answers.level]];
+    console.time('Execution time');
 
-console.log('unresolved sudoku:\n', convertOutput(hard));
-console.log('resolved sudoku:\n', resolvedSudoku);
+    const resolvedSudoku = solve(result);
+
+    console.timeEnd('Execution time');
+    console.log('Unsolved sudoku:\n', convertOutput(levels[answers.level]));
+    console.log('Solved sudoku:\n', resolvedSudoku);
+  })
+  .catch((error) => {
+    if (error.isTtyError) {
+      console.error(error);
+    } else {
+      console.error(error);
+    }
+  });
